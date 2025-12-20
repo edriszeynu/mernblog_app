@@ -2,9 +2,12 @@ import { Link } from 'react-router-dom';
 import { AiOutlineSearch } from 'react-icons/ai';
 import { FaMoon } from 'react-icons/fa';
 import { useState } from 'react';
+import { useSelector } from 'react-redux';
+import { Avatar, Dropdown } from 'flowbite-react';
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const {currentUser}=useSelector(state=>state.user)
 
   return (
     <nav className="border-b-2 px-4 py-2 flex items-center justify-between flex-wrap">
@@ -39,11 +42,28 @@ const Header = () => {
         <button className="w-10 h-10 hidden sm:flex items-center justify-center bg-gray-200 rounded-lg">
           <FaMoon />
         </button>
-        <Link to="/sign-in">
+        {currentUser ?(
+          <Dropdown arrowIcon={false} inline label={<Avatar alt='user' img={currentUser.profilePicture} rounded/>}>
+            <Dropdown.Header>
+              <span className='block text-sm'>@{currentUser.username}</span>
+              <span className='block text-sm font-medium truncate'>{currentUser.email}</span>
+            </Dropdown.Header>
+            <Link to={'/dashboard?tab=profile'}>
+            <Dropdown.Item>
+              profile
+            </Dropdown.Item>
+            <Dropdown.Divider/>
+            <Dropdown.Item>Sign Out</Dropdown.Item>
+            </Link>
+          </Dropdown>
+        ):(
+           <Link to="/sign-in">
           <button className="px-4 py-2 bg-indigo-500 text-white rounded-lg">
             Sign in
           </button>
         </Link>
+        )}
+      
 
         {/* Hamburger menu for small screens */}
         <button

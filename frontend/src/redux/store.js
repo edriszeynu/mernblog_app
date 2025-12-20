@@ -1,23 +1,27 @@
-import { configureStore,combineReducers } from '@reduxjs/toolkit'
-import userReducer from './user/userSlice'
-import persistReducer from 'redux-persist/es/persistReducer'
-import sorage from 'redux-persist/lib/storage'
-import persistStore from 'redux-persist/es/persistStore'
+import { configureStore, combineReducers } from '@reduxjs/toolkit';
+import userReducer from './user/userSlice';
 
-const rootReducer=combineReducers({
-    user:userReducer,
-})
+import storage from 'redux-persist/lib/storage';
+import { persistReducer, persistStore } from 'redux-persist';
 
-const persistConfig={
-    key:'root',
-    storage,
-    version:1,
-}
+const rootReducer = combineReducers({
+  user: userReducer,
+});
 
-const persistedReducer=persistReducer(persistConfig,rootReducer)
+const persistConfig = {
+  key: 'root',
+  version: 1,
+  storage,
+};
+
+const persistedReducer = persistReducer(persistConfig, rootReducer);
+
 export const store = configureStore({
   reducer: persistedReducer,
-  middleware:(getDefaultMiddleware)=>getDefaultMiddleware({serializableCheck:false}),
-})
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware({
+      serializableCheck: false,
+    }),
+});
 
-export const peristor=persistStore(store)
+export const persistor = persistStore(store); // ✅ FIXED NAME
