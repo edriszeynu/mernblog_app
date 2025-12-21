@@ -1,14 +1,14 @@
 import Post from "../models/post.model.js";
 import { errorHandler } from "../utils/error.js";
 
+/* ================= CREATE POST ================= */
 export const create = async (req, res, next) => {
   try {
-    // ✅ PREVENT CRASH
     if (!req.user || !req.user.isAdmin) {
       return next(errorHandler(403, "You are not allowed to create a post"));
     }
 
-    const { title, content, category } = req.body;
+    const { title, content, category, image } = req.body;
 
     if (!title || !content) {
       return next(errorHandler(400, "Please provide all fields"));
@@ -24,58 +24,96 @@ export const create = async (req, res, next) => {
       title,
       content,
       category,
+      image,
       slug,
       userId: req.user.id,
     });
 
     const savedPost = await newPost.save();
-
-    // ✅ RESPONSE ALWAYS SENT
-    return res.status(201).json(savedPost);
+    res.status(201).json(savedPost);
   } catch (error) {
     next(error);
   }
 };
 
+/* ================= GET POSTS ================= */
+export const getposts = async (req, res, next) => {
+  try {
+    const startIndex = parseInt(req.query.startIndex) || 0;
+    const limit = parseInt(req.query.limit) || 9;
+    const sortDirection = req.query.order === "asc" ? 1 : -1;
 
-export const getposts=async(req,res,next)=>{
-  try{
-  const startIndex=parseInt(req.query.startIndex)||0;
-  const limit=parseInt(req.query.limit)||9;
-  const sortDirection=req.query.order==='asc'? 1:-1;
-  const posts=await Post.find({
-    ...(req.query.userId && {userId:req.req.query.userId}),
-    ...(req.query.category && {category:req.query.category}),
-    ...(req.query.slug && {slug:req.query.slug}),
-    ...(req.query.postId && {_id:req.query.postId}),
-    ...(req.query.searchTerm && {
-      $or:[{
-        title:{$regex:req.query.searchTerm,$options:'i'}},
-        {content:{$regex:req.query.searchTerm,$options:'i'}}
-    ]
-    }),
-  }).sort({updatedAt:sortDirection}).skip(startIndex).limit(limit)
+    const posts = await Post.find({
+      ...(req.query.userId && { userId: req.query.userId }),
+      ...(req.query.category && { category: req.query.category }),
+      ...(req.query.slug && { slug: req.query.slug }),
+      ...(req.query.postId && { _id: req.query.postId }),
+      ...(req.query.searchTerm && {
+        $or: [
+          { title: { $regex: req.query.searchTerm, $options: "i" } },
+          { content: { $regex: req.query.searchTerm, $options: "i" } },
+        ],
+      }),
+    })
+      .sort({ updatedAt: sortDirection })
+      .skip(startIndex)
+      .limit(limit);
 
-  const totalPosts=await Post.countDocuments()
+    const totalPosts = await Post.countDocuments();
 
-  const now=new Date()
+    const oneMonthAgo = new Date();
+    oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
 
-  const oneMonthAgo=new Date(
-    now.getFullYear(),
-    now.getMonth(),
-    now.getDate()
-  )
+    const lastMonthPosts = await Post.countDocuments({
+      createdAt: { $gte: oneMonthAgo },
+    });
 
-  const lastMonthPosts=await Post.countDocuments({
-    createdAt:{$gte:oneMonthAgo}
-  })
-
-  res.status(200).json({
-    posts,
-    totalPosts,
-    lastMonthPosts
-  })
+    res.status(200).json({
+      posts,
+      totalPosts,
+      lastMonthPosts,
+    });
+  } catch (error) {
+    next(error);
   }
-catch(error){
+};
 
-}}
+/* ================= DELETE POST ================= */
+export const deletepost = async (req, res, next) => {
+  try {
+    if (!req.user?.isAdmin) {
+      return next(errorHandler(403, "You are not allowed to delete this post"));
+    }
+
+    await Post.findByIdAndDelete(req.params.postId);
+    res.status(200).json("The post has been deleted");
+  } catch (error) {
+    next(error);
+  }
+};
+
+/* ================= UPDATE POST ================= */
+export const updatepost = async (req, res, next) => {
+  try {
+    if (!req.user?.isAdmin) {
+      return next(errorHandler(403, "You are not allowed to update this post"));
+    }
+
+    const updatedPost = await Post.findByIdAndUpdate(
+      req.params.postId,
+      {
+        $set: {
+          title: req.body.title,
+          content: req.body.content,
+          category: req.body.category,
+          image: req.body.image,
+        },
+      },
+      { new: true }
+    );
+
+    res.status(200).json(updatedPost);
+  } catch (error) {
+    next(error);
+  }
+};

@@ -1,4 +1,3 @@
-import { Table, Modal } from "flowbite-react";
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
@@ -6,11 +5,36 @@ import { HiOutlineExclamationCircle } from "react-icons/hi";
 
 const Dashpost = () => {
   const { currentUser } = useSelector((state) => state.user);
+
   const [userPosts, setUserPosts] = useState([]);
   const [showMore, setShowMore] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [postIdToDelete, setPostIdToDelete] = useState(null);
 
+  /* ================= FETCH POSTS ================= */
+  useEffect(() => {
+    const fetchPosts = async () => {
+      try {
+        const res = await fetch(
+          `/api/post/getposts?userId=${currentUser._id}`
+        );
+        const data = await res.json();
+
+        if (res.ok) {
+          setUserPosts(data.posts);
+          if (data.posts.length < 9) setShowMore(false);
+        }
+      } catch (error) {
+        console.log(error.message);
+      }
+    };
+
+    if (currentUser?.isAdmin) {
+      fetchPosts();
+    }
+  }, [currentUser]);
+
+  /* ================= SHOW MORE ================= */
   const handleShowMore = async () => {
     const startIndex = userPosts.length;
     try {
@@ -18,39 +42,17 @@ const Dashpost = () => {
         `/api/post/getposts?userId=${currentUser._id}&startIndex=${startIndex}`
       );
       const data = await res.json();
+
       if (res.ok) {
         setUserPosts((prev) => [...prev, ...data.posts]);
-        if (data.posts.length < 9) {
-          setShowMore(false);
-        }
+        if (data.posts.length < 9) setShowMore(false);
       }
     } catch (error) {
       console.log(error.message);
     }
   };
 
-  useEffect(() => {
-    const fetchPost = async () => {
-      try {
-        const res = await fetch(`/api/post/getposts?userId=${currentUser._id}`);
-        const data = await res.json();
-        if (res.ok) {
-          setUserPosts(data.posts);
-          if (data.posts.length < 9) {
-            setShowMore(false);
-          }
-        } else {
-          console.log(data);
-        }
-      } catch (error) {
-        console.log(error.message);
-      }
-    };
-    if (currentUser.isAdmin) {
-      fetchPost();
-    }
-  }, [currentUser._id]);
-
+  /* ================= DELETE POST ================= */
   const handleDeletePost = async () => {
     setShowModal(false);
     try {
@@ -58,10 +60,8 @@ const Dashpost = () => {
         `/api/post/deletepost/${postIdToDelete}/${currentUser._id}`,
         { method: "DELETE" }
       );
-      const data = await res.json();
-      if (!res.ok) {
-        console.log(data.message);
-      } else {
+
+      if (res.ok) {
         setUserPosts((prev) =>
           prev.filter((post) => post._id !== postIdToDelete)
         );
@@ -72,101 +72,121 @@ const Dashpost = () => {
   };
 
   return (
-    <div className="table-auto overflow-x-scroll md:mx-auto p-3 scrollbar">
-      {currentUser.isAdmin && userPosts.length > 0 ? (
+    <div className="p-4 overflow-x-auto">
+      {currentUser?.isAdmin && userPosts.length > 0 ? (
         <>
-          <Table hoverable className="shadow-md">
-            <Table.Head>
-              <Table.HeadCell>Date Updated</Table.HeadCell>
-              <Table.HeadCell>Post Image</Table.HeadCell>
-              <Table.HeadCell>Post Title</Table.HeadCell>
-              <Table.HeadCell>Category</Table.HeadCell>
-              <Table.HeadCell>Delete</Table.HeadCell>
-              <Table.HeadCell>Edit</Table.HeadCell>
-            </Table.Head>
-            <Table.Body>
+          {/* ================= TABLE ================= */}
+          <table className="min-w-full border border-gray-200 shadow-md rounded-md">
+            <thead className="bg-gray-100 dark:bg-gray-700">
+              <tr>
+                <th className="px-4 py-2 text-left">Date Updated</th>
+                <th className="px-4 py-2 text-left">Post Image</th>
+                <th className="px-4 py-2 text-left">Post Title</th>
+                <th className="px-4 py-2 text-left">Category</th>
+                <th className="px-4 py-2 text-left">Delete</th>
+                <th className="px-4 py-2 text-left">Edit</th>
+              </tr>
+            </thead>
+
+            <tbody>
               {userPosts.map((post) => (
-                <Table.Row key={post._id}>
-                  <Table.Cell>
+                <tr
+                  key={post._id}
+                  className="border-t hover:bg-gray-50 dark:hover:bg-gray-800"
+                >
+                  <td className="px-4 py-2">
                     {new Date(post.updatedAt).toLocaleDateString()}
-                  </Table.Cell>
-                  <Table.Cell>
+                  </td>
+
+                  <td className="px-4 py-2">
                     <Link to={`/post/${post.slug}`}>
                       <img
                         src={post.image}
                         alt={post.title}
-                        className="w-20 h-10 object-cover bg"
+                        className="w-20 h-10 object-cover rounded"
                       />
                     </Link>
-                  </Table.Cell>
-                  <Table.Cell>
-                    <Link to={`/post/${post.slug}`}>{post.title}</Link>
-                  </Table.Cell>
-                  <Table.Cell>{post.category}</Table.Cell>
-                  <Table.Cell>
-                    <span
+                  </td>
+
+                  <td className="px-4 py-2">
+                    <Link
+                      to={`/post/${post.slug}`}
+                      className="text-blue-600 hover:underline"
+                    >
+                      {post.title}
+                    </Link>
+                  </td>
+
+                  <td className="px-4 py-2">{post.category}</td>
+
+                  <td className="px-4 py-2">
+                    <button
                       onClick={() => {
                         setShowModal(true);
                         setPostIdToDelete(post._id);
                       }}
-                      className="text-red-500 cursor-pointer"
+                      className="text-red-500 hover:underline"
                     >
                       Delete
-                    </span>
-                  </Table.Cell>
-                  <Table.Cell>
-                    <Link to={`/update-post/${post._id}`}>
-                      <span className="text-blue-500 cursor-pointer">Edit</span>
+                    </button>
+                  </td>
+
+                  <td className="px-4 py-2">
+                    <Link
+                      to={`/update-post/${post._id}`}
+                      className="text-green-600 hover:underline"
+                    >
+                      Edit
                     </Link>
-                  </Table.Cell>
-                </Table.Row>
+                  </td>
+                </tr>
               ))}
-            </Table.Body>
-          </Table>
+            </tbody>
+          </table>
+
+          {/* ================= SHOW MORE ================= */}
           {showMore && (
             <button
               onClick={handleShowMore}
-              className="w-full text-teal-500 self-center text-sm p-7"
+              className="block mx-auto mt-6 text-teal-600 hover:underline"
             >
               Show more
             </button>
           )}
         </>
       ) : (
-        <p>You have no posts yet!</p>
+        <p className="text-center text-gray-500">You have no posts yet!</p>
       )}
 
-      {/* Delete confirmation modal */}
-      <Modal
-        show={showModal}
-        onClose={() => setShowModal(false)}
-        popup
-        size="md"
-      >
-        <Modal.Header />
-        <Modal.Body>
-          <div className="text-center">
-            <HiOutlineExclamationCircle className="h-14 w-14 text-gray-400 dark:text-gray-200 mb-4 mx-auto" />
-            <h3 className="mb-5 text-lg text-gray-500 dark:text-gray-400">
-              Are you sure you want to delete this post?
-            </h3>
-            <div className="flex justify-center gap-4">
-              <button
-                className="bg-red-500 text-white px-4 py-2 rounded"
-                onClick={handleDeletePost}
-              >
-                Yes, I'm sure
-              </button>
-              <button
-                className="bg-gray-300 px-4 py-2 rounded"
-                onClick={() => setShowModal(false)}
-              >
-                No, cancel
-              </button>
+      {/* ================= DELETE MODAL ================= */}
+      {showModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+          <div className="bg-white dark:bg-gray-900 p-6 rounded-lg shadow-lg w-80">
+            <div className="flex flex-col items-center">
+              <HiOutlineExclamationCircle className="text-gray-400 w-14 h-14 mb-4" />
+              <h3 className="text-center mb-6 text-gray-600 dark:text-gray-300">
+                Are you sure you want to delete this post?
+              </h3>
+
+              <div className="flex gap-4">
+                <button
+                  onClick={handleDeletePost}
+                  className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+                >
+                  Yes, delete
+                </button>
+
+                <button
+                  onClick={() => setShowModal(false)}
+                  className="bg-gray-300 px-4 py-2 rounded hover:bg-gray-400"
+                >
+                  Cancel
+                </button>
+              </div>
             </div>
           </div>
-        </Modal.Body>
-      </Modal>
+        </div>
+      )}
     </div>
   );
 };
