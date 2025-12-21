@@ -12,11 +12,12 @@ import {
   HiUser,
 } from "react-icons/hi";
 import { Link, useLocation } from "react-router-dom";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { signoutSuccess } from "../redux/user/userSlice"; // ✅ FIXED HERE
 
 const DashSidebar = () => {
   const [tab, setTab] = useState("");
+  const{currentUser}=useSelector(state=>state.user)
   const location = useLocation();
   const dispatch = useDispatch();
 
@@ -55,6 +56,7 @@ const DashSidebar = () => {
             icon={HiUser}
             active={tab === "profile"}
             labelColor="dark"
+            label={currentUser.isAdmin ? 'Admin' : 'User'}
           >
             Profile
           </SidebarItem>
