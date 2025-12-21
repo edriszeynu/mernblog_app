@@ -1,28 +1,29 @@
-import React from 'react'
-import { useEffect,useState } from 'react'
-import {useLocation, useSelection} from 'react-router-dom'
-import DashSidebar from '../components/DashSidebar'
-import DashProfile from '../components/DashProfile'
+import React, { useEffect, useState } from 'react';
+import { useLocation } from 'react-router-dom'; // ✅ FIXED
+import DashSidebar from '../components/DashSidebar';
+import DashProfile from '../components/DashProfile';
 
 const Dashboard = () => {
+  const location = useLocation();
+  const [tab, setTab] = useState(''); // ✅ FIXED
 
-  const location=useLocation()
-  const [tab,seTab]=useState();
-
-  useEffect(()=>{
-    const urlParams=new URLSearchParams(location.search)
-    const tabFromUrl=urlParams.get('tab')
-    if(tabFromUrl){
-      setTab(tabFromUrl)
+  useEffect(() => {
+    const urlParams = new URLSearchParams(location.search);
+    const tabFromUrl = urlParams.get('tab');
+    if (tabFromUrl) {
+      setTab(tabFromUrl);
     }
-  },[location.search])
-  return (
-    <div className='min-h-screen flex flex-col md:flex-row '>
-      <div className='md:w-56'><DashSidebar/></div>
-    {tab==='profile' && <DashProfile/>}
-    </div>
-    
-  )
-}
+  }, [location.search]);
 
-export default Dashboard
+  return (
+    <div className="min-h-screen flex flex-col md:flex-row">
+      <div className="md:w-56">
+        <DashSidebar />
+      </div>
+
+      {tab === 'profile' && <DashProfile />}
+    </div>
+  );
+};
+
+export default Dashboard;

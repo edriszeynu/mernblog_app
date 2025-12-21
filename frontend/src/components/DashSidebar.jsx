@@ -11,13 +11,13 @@ import {
   HiOutlineUserGroup,
   HiUser,
 } from "react-icons/hi";
-import { Link, useLocation } from "react-router-dom"; // ✅ needed for routing
+import { Link, useLocation } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import { signoutSuccess } from "../redux/user/userslice";
+import { signoutSuccess } from "../redux/user/userSlice"; // ✅ FIXED HERE
 
 const DashSidebar = () => {
-  const [tab, setTab] = useState(""); // ✅ define state
-  const location = useLocation(); // ✅ to read query params
+  const [tab, setTab] = useState("");
+  const location = useLocation();
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -49,7 +49,6 @@ const DashSidebar = () => {
     <Sidebar className="w-full md:max-w-56">
       <SidebarItems>
         <SidebarItemGroup>
-          {/* Profile Tab */}
           <SidebarItem
             as={Link}
             to="/dashboard?tab=profile"
@@ -60,7 +59,6 @@ const DashSidebar = () => {
             Profile
           </SidebarItem>
 
-          {/* Posts Tab */}
           <SidebarItem
             as={Link}
             to="/dashboard?tab=posts"
@@ -71,7 +69,6 @@ const DashSidebar = () => {
             Posts
           </SidebarItem>
 
-          {/* Users Tab */}
           <SidebarItem
             as={Link}
             to="/dashboard?tab=users"
@@ -82,7 +79,6 @@ const DashSidebar = () => {
             Users
           </SidebarItem>
 
-          {/* Sign Out */}
           <SidebarItem
             icon={HiArrowSmRight}
             className="cursor-pointer"

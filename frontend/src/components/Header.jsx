@@ -4,6 +4,8 @@ import { FaMoon, FaSun } from 'react-icons/fa';
 import { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { toggleTheme } from '../redux/theme/themeSlice';
+import {signoutSuccess} from '../redux/user/userSlice'
+
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -12,6 +14,23 @@ const Header = () => {
   const { currentUser } = useSelector((state) => state.user);
   const { theme } = useSelector((state) => state.theme);
   const dispatch = useDispatch();
+
+  const handleSignout = async () => {
+      try {
+        const res = await fetch("/api/user/signout", {
+          method: "POST",
+        });
+  
+        const data = await res.json();
+        if (!res.ok) {
+          console.log(data.message);
+        } else {
+          dispatch(signoutSuccess());
+        }
+      } catch (error) {
+        console.log(error.message);
+      }
+    };
 
   return (
     <nav className="border-b px-4 py-2 flex items-center justify-between flex-wrap
@@ -92,6 +111,7 @@ const Header = () => {
 
                 <button
                   className="w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700"
+                  onClick={handleSignout}
                 >
                   Sign Out
                 </button>
