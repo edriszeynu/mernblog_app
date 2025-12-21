@@ -1,27 +1,38 @@
-import Post from "../models/post.model.js"
-import { errorHandler } from "../utils/error.js"
+import Post from "../models/post.model.js";
+import { errorHandler } from "../utils/error.js";
 
-export const create=async(req,res,next)=>{
+export const create = async (req, res, next) => {
+  try {
+    // ✅ PREVENT CRASH
+    if (!req.user || !req.user.isAdmin) {
+      return next(errorHandler(403, "You are not allowed to create a post"));
+    }
 
-    if(!req.user.isAdmin){
-        return next(errorHandler(403,'you are not allowed to create a post'))
-    }
-    if(!req.body.title || !req.body.content){
-        return next(errorHandler(400,'please provide all fields'))
-    }
-    const slug=req.body.title.split(' ').join('_').toLowerCase().replace(/[^a-aA-Z0-9-]/g,'')
+    const { title, content, category } = req.body;
 
-    const newPost=new Post({
-        ...req.body,
-        slug,
-        userId:req.user.id
-    })
+    if (!title || !content) {
+      return next(errorHandler(400, "Please provide all fields"));
+    }
 
-    try{
-        const savedPost=await newPost.save()
-         res.status(200).json(savedPost)
-    }
-    catch(error){
-        next(error)
-    }
-}
+    const slug = title
+      .trim()
+      .toLowerCase()
+      .replace(/\s+/g, "-")
+      .replace(/[^a-z0-9-]/g, "");
+
+    const newPost = new Post({
+      title,
+      content,
+      category,
+      slug,
+      userId: req.user.id,
+    });
+
+    const savedPost = await newPost.save();
+
+    // ✅ RESPONSE ALWAYS SENT
+    return res.status(201).json(savedPost);
+  } catch (error) {
+    next(error);
+  }
+};

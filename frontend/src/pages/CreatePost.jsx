@@ -5,79 +5,84 @@ import { useNavigate } from "react-router-dom";
 
 const CreatePost = () => {
   const navigate = useNavigate();
-  const [formData, setFormData] = useState({});
+  const [formData, setFormData] = useState({
+    title: "",
+    category: "uncategorized",
+    content: "",
+  });
   const [publishError, setPublishError] = useState(null);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     try {
-      const res = await fetch("/api/posts/create", {
+      const res = await fetch("/api/post/create", {
         method: "POST",
         headers: {
-          "content-type": "application/json",
+          "Content-Type": "application/json",
         },
+        credentials: "include", // ✅ SEND COOKIE
         body: JSON.stringify(formData),
       });
+
       const data = await res.json();
+
       if (!res.ok) {
         setPublishError(data.message || "Failed to create post");
         return;
       }
-      if (res.ok) {
-        setPublishError(null);
-        navigate(`/post/${data.slug}`);
-      }
+
+      setPublishError(null);
+      navigate(`/post/${data.slug}`);
     } catch (error) {
-      setPublishError(error.message || "Failed to create post");
+      setPublishError("Something went wrong");
     }
   };
 
   return (
     <div className="p-3 max-w-3xl mx-auto min-h-screen">
       <h1 className="text-center text-3xl my-7 font-semibold">Create a Post</h1>
+
       <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
         <div className="flex flex-col gap-4 sm:flex-row justify-between">
           <input
             type="text"
             placeholder="Title"
             required
-            id="title"
-            className="flex-1 border border-gray-300 p-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+            className="flex-1 border p-2 rounded-lg"
             onChange={(e) =>
               setFormData({ ...formData, title: e.target.value })
             }
           />
+
           <select
-            className="border border-gray-300 p-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+            className="border p-2 rounded-lg"
             onChange={(e) =>
               setFormData({ ...formData, category: e.target.value })
             }
           >
             <option value="uncategorized">Select Category</option>
             <option value="javascript">JavaScript</option>
-            <option value="react.js">React.js</option>
-            <option value="next.js">Next.js</option>
+            <option value="react">React</option>
+            <option value="next">Next.js</option>
           </select>
         </div>
 
         <ReactQuill
           theme="snow"
-          placeholder="Write your post here..."
           className="h-96 mb-12"
-          onChange={(value) => setFormData({ ...formData, content: value })}
+          placeholder="Write your post..."
+          onChange={(value) =>
+            setFormData({ ...formData, content: value })
+          }
         />
 
-        <button
-          type="submit"
-          className="bg-gradient-to-r from-purple-500 to-pink-500 text-white py-2 px-4 rounded-lg hover:opacity-90 transition duration-200"
-        >
+        <button className="bg-purple-600 text-white p-2 rounded-lg">
           Publish
         </button>
 
         {publishError && (
-          <div className="bg-red-100 text-red-700 p-3 rounded-lg mt-5">
-            {publishError}
-          </div>
+          <p className="text-red-600 text-center">{publishError}</p>
         )}
       </form>
     </div>
