@@ -13,11 +13,11 @@ import {
 } from "react-icons/hi";
 import { Link, useLocation } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { signoutSuccess } from "../redux/user/userSlice"; // ✅ FIXED HERE
+import { signoutSuccess } from "../redux/user/userSlice";
 
 const DashSidebar = () => {
   const [tab, setTab] = useState("");
-  const{currentUser}=useSelector(state=>state.user)
+  const { currentUser } = useSelector((state) => state.user);
   const location = useLocation();
   const dispatch = useDispatch();
 
@@ -33,6 +33,7 @@ const DashSidebar = () => {
     try {
       const res = await fetch("/api/user/signout", {
         method: "POST",
+        credentials: "include", // ✅ IMPORTANT
       });
 
       const data = await res.json();
@@ -50,17 +51,19 @@ const DashSidebar = () => {
     <Sidebar className="w-full md:max-w-56">
       <SidebarItems>
         <SidebarItemGroup>
+          {/* PROFILE */}
           <SidebarItem
             as={Link}
             to="/dashboard?tab=profile"
             icon={HiUser}
             active={tab === "profile"}
             labelColor="dark"
-            label={currentUser.isAdmin ? 'Admin' : 'User'}
+            label={currentUser?.isAdmin ? "Admin" : "User"} // ✅ SAFE
           >
             Profile
           </SidebarItem>
 
+          {/* POSTS */}
           <SidebarItem
             as={Link}
             to="/dashboard?tab=posts"
@@ -71,16 +74,20 @@ const DashSidebar = () => {
             Posts
           </SidebarItem>
 
-          <SidebarItem
-            as={Link}
-            to="/dashboard?tab=users"
-            icon={HiOutlineUserGroup}
-            active={tab === "users"}
-            labelColor="dark"
-          >
-            Users
-          </SidebarItem>
+          {/* USERS (ADMIN ONLY) */}
+          {currentUser?.isAdmin && (
+            <SidebarItem
+              as={Link}
+              to="/dashboard?tab=users"
+              icon={HiOutlineUserGroup}
+              active={tab === "users"}
+              labelColor="dark"
+            >
+              Users
+            </SidebarItem>
+          )}
 
+          {/* SIGN OUT */}
           <SidebarItem
             icon={HiArrowSmRight}
             className="cursor-pointer"
