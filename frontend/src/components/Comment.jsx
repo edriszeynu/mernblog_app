@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import moment from 'mement'
-const Comment = ({comment}) => {
+const Comment = ({comment,onLike}) => {
     const [user,setUser]=useState({})
     useEffect(()=>{
         const getUser=async ()=>{
@@ -30,6 +30,19 @@ const Comment = ({comment}) => {
                 {moment(comment.createdAt).fromNow()}
             </div>
             <p>{comment.content}</p>
+            <div>
+                <button type='button' onClick={onLike(comment._id)}>
+                    <FaThumbsUP/>
+                </button>
+                <p>{
+                    
+                    comment.numberOfLikes>0 && comment.numberOfLikes + '' +{comment.numberOfLikes===1? "likes":'dislikes'}
+                    
+                    }
+
+                </p>
+        
+            </div>
         </div>
     </div>
   )
