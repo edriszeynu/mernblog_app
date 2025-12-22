@@ -7,6 +7,7 @@ import cors from 'cors';
 import userRouter from './routes/user.route.js';
 import authRouter from './routes/auth.route.js';
 import postRouter from './routes/post.route.js';
+import commentRouter from './routes/comment.route.js';
 
 dotenv.config();
 const app = express();
@@ -23,6 +24,7 @@ app.use(cors({
 app.use('/api/user', userRouter);
 app.use('/api/auth', authRouter);
 app.use('/api/post', postRouter);
+app.use('api/comment',commentRouter)
 
 // Global error handler
 app.use((err, req, res, next) => {

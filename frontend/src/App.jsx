@@ -15,10 +15,12 @@ import OnlyAdminPrivateRoute from './components/OnlySdminPrivateRoute';
 import CreatePost from './pages/CreatePost';
 import UpdatePost from "./pages/UpdatePost"
 import PostPage from './pages/PostPage'
+import ScrooToTop from './components/ScrooToTop';
 
 const App = () => {
   return (
     <BrowserRouter>
+    <ScrooToTop/>
       <Header />
       
       <Routes>
