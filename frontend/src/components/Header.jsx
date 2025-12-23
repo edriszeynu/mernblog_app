@@ -1,7 +1,7 @@
-import { Link } from 'react-router-dom';
+import { Link,useLocation,useNavigate } from 'react-router-dom';
 import { AiOutlineSearch } from 'react-icons/ai';
 import { FaMoon, FaSun } from 'react-icons/fa';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { toggleTheme } from '../redux/theme/themeSlice';
 import {signoutSuccess} from '../redux/user/userSlice'
@@ -10,10 +10,21 @@ import {signoutSuccess} from '../redux/user/userSlice'
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-
+  const location=useLocation()
+  const navigate=useNavigate()
   const { currentUser } = useSelector((state) => state.user);
   const { theme } = useSelector((state) => state.theme);
+  const [searchTerm,setSearchTerm]=useState('')
   const dispatch = useDispatch();
+
+useEffect(()=>{
+  const urlParams=new URLSearchParams(location.search)
+  const searchTermFromUrl=urlParams.get('searchTerm')
+
+  if(searchTermFromUrl){
+    setSearchTerm(searchTermFromUrl)
+  }
+},[location.search])
 
   const handleSignout = async () => {
       try {
@@ -32,6 +43,16 @@ const Header = () => {
       }
     };
 
+
+    const handleSubmit=(e)=>{
+      e.preventDefaul()
+
+      const urlParams=new URLSearchParams(location.search)
+      urlParams.set('sarchTerm',searchTerm)
+      const searchQuery=urlParams.toString();
+      navigate(`/search?${searchQuery}`)
+
+    }
   return (
     <nav className="border-b px-4 py-2 flex items-center justify-between flex-wrap
                     bg-white dark:bg-[rgb(16,23,42)]
@@ -49,13 +70,18 @@ const Header = () => {
 
       {/* Search */}
       <div className="relative flex items-center">
-        <input
+        <form onSubmit={handleSubmit}>
+             <input
           type="text"
           placeholder="Search ..."
           className="hidden lg:inline-block px-4 py-1 border rounded-lg focus:outline-none pr-10
                      bg-white dark:bg-gray-800
                      border-gray-300 dark:border-gray-600"
+          value={searchTerm} 
+          onChange={(e)=>setSearchTerm(e.target.value)}          
         />
+        </form>
+     
         <AiOutlineSearch className="hidden lg:inline absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" />
 
         <button className="lg:hidden w-10 h-10 flex items-center justify-center
