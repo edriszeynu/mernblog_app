@@ -71,7 +71,6 @@ const DashboardComponent = () => {
 
   return (
     <div className="p-4 space-y-8">
-      {/* STATS */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow flex justify-between">
           <div>
@@ -110,95 +109,96 @@ const DashboardComponent = () => {
         </div>
       </div>
 
-      {/* USERS TABLE */}
-      <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow">
-        <div className="flex justify-between mb-3">
-          <h1 className="font-semibold">Recent Users</h1>
-          <Link to="/dashboard?tab=users" className="text-teal-500 text-sm">
-            See all
-          </Link>
+      <div className="flex flex-col lg:flex-row lg:flex-wrap gap-6">
+        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow w-full lg:w-[48%]">
+          <div className="flex justify-between mb-3">
+            <h1 className="font-semibold">Recent Users</h1>
+            <Link to="/dashboard?tab=users" className="text-teal-500 text-sm">
+              See all
+            </Link>
+          </div>
+          <div className="overflow-x-auto">
+            <Table hoverable>
+              <TableHead>
+                <TableHeadCell>User Image</TableHeadCell>
+                <TableHeadCell>Username</TableHeadCell>
+              </TableHead>
+              <TableBody>
+                {users.map((user) => (
+                  <TableRow key={user._id}>
+                    <TableCell>
+                      <img
+                        src={user.profilePicture}
+                        alt=""
+                        className="w-10 h-10 rounded-full"
+                      />
+                    </TableCell>
+                    <TableCell>{user.username}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
         </div>
-        <div className="overflow-x-auto">
-          <Table hoverable>
-            <TableHead>
-              <TableHeadCell>User Image</TableHeadCell>
-              <TableHeadCell>Username</TableHeadCell>
-            </TableHead>
-            <TableBody>
-              {users.map((user) => (
-                <TableRow key={user._id}>
-                  <TableCell>
-                    <img
-                      src={user.profilePicture}
-                      className="w-10 h-10 rounded-full"
-                    />
-                  </TableCell>
-                  <TableCell>{user.username}</TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
-      </div>
 
-      {/* COMMENTS TABLE */}
-      <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow">
-        <div className="flex justify-between mb-3">
-          <h1 className="font-semibold">Recent Comments</h1>
-          <Link to="/dashboard?tab=comments" className="text-teal-500 text-sm">
-            See all
-          </Link>
+        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow w-full lg:w-[48%]">
+          <div className="flex justify-between mb-3">
+            <h1 className="font-semibold">Recent Comments</h1>
+            <Link to="/dashboard?tab=comments" className="text-teal-500 text-sm">
+              See all
+            </Link>
+          </div>
+          <div className="overflow-x-auto">
+            <Table hoverable>
+              <TableHead>
+                <TableHeadCell>Content</TableHeadCell>
+                <TableHeadCell>Likes</TableHeadCell>
+              </TableHead>
+              <TableBody>
+                {comments.map((comment) => (
+                  <TableRow key={comment._id}>
+                    <TableCell className="max-w-xs truncate">
+                      {comment.content}
+                    </TableCell>
+                    <TableCell>{comment.numberOfLikes}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
         </div>
-        <div className="overflow-x-auto">
-          <Table hoverable>
-            <TableHead>
-              <TableHeadCell>Content</TableHeadCell>
-              <TableHeadCell>Likes</TableHeadCell>
-            </TableHead>
-            <TableBody>
-              {comments.map((comment) => (
-                <TableRow key={comment._id}>
-                  <TableCell className="max-w-xs truncate">
-                    {comment.content}
-                  </TableCell>
-                  <TableCell>{comment.numberOfLikes}</TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
-      </div>
 
-      {/* POSTS TABLE */}
-      <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow">
-        <div className="flex justify-between mb-3">
-          <h1 className="font-semibold">Recent Posts</h1>
-          <Link to="/dashboard?tab=posts" className="text-teal-500 text-sm">
-            See all
-          </Link>
-        </div>
-        <div className="overflow-x-auto">
-          <Table hoverable>
-            <TableHead>
-              <TableHeadCell>Image</TableHeadCell>
-              <TableHeadCell>Title</TableHeadCell>
-              <TableHeadCell>Category</TableHeadCell>
-            </TableHead>
-            <TableBody>
-              {posts.map((post) => (
-                <TableRow key={post._id}>
-                  <TableCell>
-                    <img
-                      src={post.image}
-                      className="w-14 h-10 object-cover rounded"
-                    />
-                  </TableCell>
-                  <TableCell>{post.title}</TableCell>
-                  <TableCell>{post.category}</TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow w-full lg:w-[48%]">
+          <div className="flex justify-between mb-3">
+            <h1 className="font-semibold">Recent Posts</h1>
+            <Link to="/dashboard?tab=posts" className="text-teal-500 text-sm">
+              See all
+            </Link>
+          </div>
+          <div className="overflow-x-auto">
+            <Table hoverable>
+              <TableHead>
+                <TableHeadCell>Image</TableHeadCell>
+                <TableHeadCell>Title</TableHeadCell>
+                <TableHeadCell>Category</TableHeadCell>
+              </TableHead>
+              <TableBody>
+                {posts.map((post) => (
+                  <TableRow key={post._id}>
+                    <TableCell>
+                      <img
+                        src={post.image}
+                        alt=""
+                        className="w-14 h-10 object-cover rounded"
+                      />
+                    </TableCell>
+                    <TableCell>{post.title}</TableCell>
+                    <TableCell>{post.category}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
         </div>
       </div>
     </div>

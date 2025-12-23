@@ -35,7 +35,7 @@ const DashSidebar = () => {
     try {
       const res = await fetch("/api/user/signout", {
         method: "POST",
-        credentials: "include", // ✅ IMPORTANT
+        credentials: "include",
       });
 
       const data = await res.json();
@@ -53,12 +53,18 @@ const DashSidebar = () => {
     <Sidebar className="w-full md:max-w-56">
       <SidebarItems>
         <SidebarItemGroup>
-
-          {currentUser && currentUser.isAdmin &&(
-            <Link to="/dashboard?tab===dash">
-              <SidebarItem active={tab==='dash'||!tab} icon={HiChartPie}>Dashboard</SidebarItem>
+          {/* DASHBOARD (ADMIN ONLY) */}
+          {currentUser?.isAdmin && (
+            <Link to="/dashboard?tab=dash">
+              <SidebarItem
+                active={tab === "dash" || !tab}
+                icon={HiChartPie}
+              >
+                Dashboard
+              </SidebarItem>
             </Link>
           )}
+
           {/* PROFILE */}
           <SidebarItem
             as={Link}
@@ -66,7 +72,7 @@ const DashSidebar = () => {
             icon={HiUser}
             active={tab === "profile"}
             labelColor="dark"
-            label={currentUser?.isAdmin ? "Admin" : "User"} // ✅ SAFE
+            label={currentUser?.isAdmin ? "Admin" : "User"}
           >
             Profile
           </SidebarItem>
@@ -82,26 +88,28 @@ const DashSidebar = () => {
             Posts
           </SidebarItem>
 
-          {/* USERS (ADMIN ONLY) */}
+          {/* ADMIN ONLY */}
           {currentUser?.isAdmin && (
             <>
-            <SidebarItem
-              as={Link}
-              to="/dashboard?tab=users"
-              icon={HiOutlineUserGroup}
-              active={tab === "users"}
-              labelColor="dark"
-            >
-              Users
-            </SidebarItem>
-              as={Link}
-              to="/dashboard?tab=comments"
-              icon={HiAnnotation}
-              active={tab === "users"}
-              labelColor="dark"
-            >
-              comments
-            </SidebarItem>
+              <SidebarItem
+                as={Link}
+                to="/dashboard?tab=users"
+                icon={HiOutlineUserGroup}
+                active={tab === "users"}
+                labelColor="dark"
+              >
+                Users
+              </SidebarItem>
+
+              <SidebarItem
+                as={Link}
+                to="/dashboard?tab=comments"
+                icon={HiAnnotation}
+                active={tab === "comments"}
+                labelColor="dark"
+              >
+                Comments
+              </SidebarItem>
             </>
           )}
 

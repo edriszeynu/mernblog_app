@@ -1,73 +1,58 @@
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { HiOutlineExclamationCircle } from "react-icons/hi";
-import { FaCheck, FaTimes } from "react-icons/fa";
 
 const DashComments = () => {
-  const { currentUser } = useSelector((state) => state.comment);
+  const { currentUser } = useSelector((state) => state.user);
+
   const [comments, setComments] = useState([]);
   const [showMore, setShowMore] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [commentIdToDelete, setCommentIdToDelete] = useState(null);
 
-  // useEFetch users from backend
-  useEffect(()=>{
-const fetchComments=async ()=>{
- try{
-    const res=fetch('/api/comment/getComments')
-    const data=await res.json()
-    i(res.ok){
-        
-    setComments(data.comments)
-    if(data.comments.length<9){
-        setShowMore(false)
-    }
-    }
- }
- catch(error){
-    console.log(error.message)
- }
-}
-  if (currentUser?.isAdmin) {
+  // Fetch comments
+  useEffect(() => {
+    const fetchComments = async () => {
+      try {
+        const res = await fetch("/api/comment/getComments", {
+          credentials: "include",
+        });
+        const data = await res.json();
+
+        if (res.ok) {
+          setComments(data.comments);
+          if (data.comments.length < 9) {
+            setShowMore(false);
+          }
+        }
+      } catch (error) {
+        console.log(error.message);
+      }
+    };
+
+    if (currentUser?.isAdmin) {
       fetchComments();
     }
-  
+  }, [currentUser]);
 
-  },[currentUser._id])
-  
- 
+  // Show more comments
+  const handleShowMore = async () => {
+    const startIndex = comments.length;
 
-
-  
-    if (currentUser?.isAdmin) {
-      fetchUsers();
-    }
-  
-
-  // Show more users
-  const handleShowMore = () => {
-        const startIndex=comments.length;
-       try {
+    try {
       const res = await fetch(
         `/api/comment/getComments?startIndex=${startIndex}&limit=3`,
-        { credentials: "include" } // important to send cookie
+        { credentials: "include" }
       );
 
       const data = await res.json();
 
       if (res.ok) {
-        setComments((prev)=>[...prev , ...data.comments])
-        return;
-      }
+        setComments((prev) => [...prev, ...data.comments]);
 
-      if (startIndex === 0) {
-        setUsers(data.users);
-      } else {
-        setUsers((prev) => [...prev, ...data.comments]);
-      }
-
-      if (!data.users || data.comments.length < 9) {
-        setShowMore(false);
+        if (data.comments.length < 3) {
+          setShowMore(false);
+        }
       }
     } catch (error) {
       console.log(error.message);
@@ -76,23 +61,26 @@ const fetchComments=async ()=>{
 
   // Delete comment
   const handleDeleteComment = async () => {
-    setShowModal(false)
-    try{
-        const res=await fetch(`/api/comment/deleteComment/${userIdToDelete}`,{
-            method:'DELETE'
-        })
-        const data=await res.json()
-        if(res.ok{
-            setComments((prev=>prev.filter((comment)=>comment._id===commentIdToDelete)))
-        })
-    }
-    catch(error){
-    console.log(error.message)
-    }
-  }
-   
+    setShowModal(false);
 
+    try {
+      const res = await fetch(
+        `/api/comment/deleteComment/${commentIdToDelete}`,
+        {
+          method: "DELETE",
+          credentials: "include",
+        }
+      );
 
+      if (res.ok) {
+        setComments((prev) =>
+          prev.filter((comment) => comment._id !== commentIdToDelete)
+        );
+      }
+    } catch (error) {
+      console.log(error.message);
+    }
+  };
 
   if (!currentUser?.isAdmin) {
     return <p className="text-center mt-6">Admin access only</p>;
@@ -106,10 +94,10 @@ const fetchComments=async ()=>{
             <thead className="bg-gray-100">
               <tr>
                 <th className="border p-2">Date updated</th>
-                <th className="border p-2">content</th>
-                <th className="border p-2">Number of likes</th>
-                <th className="border p-2">postId</th>
-                <th className="border p-2">userId</th>
+                <th className="border p-2">Content</th>
+                <th className="border p-2">Likes</th>
+                <th className="border p-2">Post ID</th>
+                <th className="border p-2">User ID</th>
                 <th className="border p-2">Delete</th>
               </tr>
             </thead>
@@ -119,15 +107,12 @@ const fetchComments=async ()=>{
                   <td className="border p-2">
                     {new Date(comment.updatedAt).toLocaleDateString()}
                   </td>
+                  <td className="border p-2">{comment.content}</td>
                   <td className="border p-2">
-                      {comment.content}
+                    {comment.numberOfLikes}
                   </td>
-                  <td className="border p-2">{comment.numberOfLikes}</td>
                   <td className="border p-2">{comment.postId}</td>
-                  <td className="border p-2">
-                    {comment.userId }
-                   
-                  </td>
+                  <td className="border p-2">{comment.userId}</td>
                   <td className="border p-2">
                     <span
                       className="text-red-500 cursor-pointer"
@@ -154,10 +139,10 @@ const fetchComments=async ()=>{
           )}
         </>
       ) : (
-        <p className="text-center mt-6">No users found</p>
+        <p className="text-center mt-6">No comments found</p>
       )}
 
-      {/* Delete confirmation modal */}
+      {/* DELETE MODAL */}
       {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center">
           <div className="bg-white p-6 rounded-lg w-80">
