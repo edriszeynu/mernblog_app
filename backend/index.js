@@ -24,7 +24,7 @@ app.use(cors({
 app.use('/api/user', userRouter);
 app.use('/api/auth', authRouter);
 app.use('/api/post', postRouter);
-app.use('api/comment',commentRouter)
+app.use('/api/comment',commentRouter)
 
 // Global error handler
 app.use((err, req, res, next) => {
