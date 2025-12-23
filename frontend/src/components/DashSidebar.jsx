@@ -8,6 +8,7 @@ import {
 import {
   HiAnnotation,
   HiArrowSmRight,
+  HiChartPie,
   HiDocumentText,
   HiOutlineUserGroup,
   HiUser,
@@ -52,6 +53,12 @@ const DashSidebar = () => {
     <Sidebar className="w-full md:max-w-56">
       <SidebarItems>
         <SidebarItemGroup>
+
+          {currentUser && currentUser.isAdmin &&(
+            <Link to="/dashboard?tab===dash">
+              <SidebarItem active={tab==='dash'||!tab} icon={HiChartPie}>Dashboard</SidebarItem>
+            </Link>
+          )}
           {/* PROFILE */}
           <SidebarItem
             as={Link}
